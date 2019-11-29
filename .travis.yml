@@ -1,6 +1,9 @@
+sudo: false
+
 language: php
 
 matrix:
+  fast_finish: true
   include:
     - php: 5.3
       dist: precise
@@ -18,12 +21,12 @@ matrix:
   allow_failures:
     - php: nightly
 
-cache:
-  directories:
-    - $HOME/.composer/cache
-
 before_script:
+  - if [[ "$SNIFF" == "1" ]]; then composer self-update; fi
+  - if [[ "$SNIFF" == "1" ]]; then composer require squizlabs/php_codesniffer:dev-master; fi
   - composer install
+  - phpenv rehash
 
 script:
   - composer test
+  - if [[ "$SNIFF" == "1" ]]; then vendor/bin/phpcs . --standard=./custom-ruleset.xml; fi
